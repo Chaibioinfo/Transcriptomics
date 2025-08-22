@@ -1,0 +1,5 @@
+Download FASTQ sequences from ncbi
+Run FASTOC or Falco: qulity control
+Trimming the adaptor sequences
+     Input: Paired-end R1/R2 files
+     Code: to split Fastq files      [fasterq-dump --split-files SRR.....]
