@@ -1,0 +1,16 @@
+Download FASTQ sequences from ncbi
+
+Run FASTOC or Falco: qulity control
+
+Split files for running trimmomatic
+     Code: fasterq-dump --split-files SRR.....
+     Input: SRR....fastq files
+     Output: SRR...R1    SRR...R2
+
+Run fastqc for quality check and adaptor contamination for each separate files
+     Download fastqc: babraham bioinformatics
+
+Trimming the adaptor sequences
+     Download trimmomatic: github
+     Input: forward and reverse R1/R2 files
+     Output: paired and unpaired R1/R2 files
