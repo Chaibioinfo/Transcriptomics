@@ -5,12 +5,18 @@ Run FASTOC or Falco: qulity control
 Split files for running trimmomatic
      Code: fasterq-dump --split-files SRR.....
      Input: SRR....fastq files
-     Output: SRR...R1    SRR...R2
+     Output: SRR...R1.fastq    SRR...R2.fastq
 
 Run fastqc for quality check and adaptor contamination for each separate files
      Download fastqc: babraham bioinformatics
 
 Trimming the adaptor sequences
      Download trimmomatic: github
+     Code: java -jar /mnt/d/gaurgram/Trimmomatic-0.39/trimmomatic-0.39.jar PE -threads 6 \
+  control_R1_rep1.fastq  control_R2_rep1.fastq \
+  control_R1_rep1_paired.fastq control_R1_rep1_unpaired.fastq \
+  control_R2_rep1_paired.fastq control_R2_rep1_unpaired.fastq \
+  ILLUMINACLIP:/mnt/d/gaurgram/Trimmomatic-0.39/adapters/TruSeq3-PE.fa:2:30:10 \
+  LEADING:3 TRAILING:3 SLIDINGWINDOW:4:15 MINLEN:36
      Input: forward and reverse R1/R2 files
      Output: paired and unpaired R1/R2 files
