@@ -13,10 +13,24 @@ Run fastqc for quality check and adaptor contamination for each separate files
 Trimming the adaptor sequences
      Download trimmomatic: github
      Code: java -jar /mnt/d/gaurgram/Trimmomatic-0.39/trimmomatic-0.39.jar PE -threads 6 \
-  control_R1_rep1.fastq  control_R2_rep1.fastq \
-  control_R1_rep1_paired.fastq control_R1_rep1_unpaired.fastq \
-  control_R2_rep1_paired.fastq control_R2_rep1_unpaired.fastq \
-  ILLUMINACLIP:/mnt/d/gaurgram/Trimmomatic-0.39/adapters/TruSeq3-PE.fa:2:30:10 \
-  LEADING:3 TRAILING:3 SLIDINGWINDOW:4:15 MINLEN:36
+           control_R1_rep1.fastq  control_R2_rep1.fastq \
+           control_R1_rep1_paired.fastq control_R1_rep1_unpaired.fastq \
+           control_R2_rep1_paired.fastq control_R2_rep1_unpaired.fastq \
+           ILLUMINACLIP:/mnt/d/gaurgram/Trimmomatic-0.39/adapters/TruSeq3-PE.fa:2:30:10 \
+           LEADING:3 TRAILING:3 SLIDINGWINDOW:4:15 MINLEN:36
      Input: forward and reverse R1/R2 files
      Output: paired and unpaired R1/R2 files
+
+Index the ref genome
+     Code: hisat2-build ref_genome.fa index_prefix [No gtf file is avaliable for Cyamopsis tetragonoloba] 
+
+Align the samples with indexed ref genome
+     Code: hisat2 -p 4 --dta -x index_prefix \
+          -1 control_R1_rep2.fastq -2 control_R2_rep2.fastq \
+           | samtools sort -o control_rep2.sorted.bam
+     [Instead of converting to .sam file convert directly to bam file using samtools]
+     Input: R1/R2 fastq files
+     Output: sorted.bam file
+
+
+
