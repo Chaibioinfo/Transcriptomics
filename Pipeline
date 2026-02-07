@@ -32,5 +32,19 @@ Align the samples with indexed ref genome
      Input: R1/R2 fastq files
      Output: sorted.bam file
 
+Quantifiy Gene Expression
+     Each sample has 3 biological replicates, run sorted.bam files in a single run
+     Code: featureCounts -T 4 \
+          -p -B -C \
+          -t exon \
+          -g gene_id \
+          --tmpDir /tmp \
+          -a merged.gtf \
+          -o feature_counts.txt \
+          control_rep1.sorted.bam control_rep2.sorted.bam control_rep3.sorted.bam \
+          heat_rep1.sorted.bam heat_rep2.sorted.bam heat_rep3.sorted.bam \
+          drought_rep1.sorted.bam drought_rep2.sorted.bam drought_rep3.sorted.bam \
+          salinity_rep1.sorted.bam salinity_rep2.sorted.bam salinity_rep3.sorted.bam
+
 
 
