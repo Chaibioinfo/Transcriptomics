@@ -115,5 +115,14 @@ dds <- dds[rowSums(counts(dds)) > 10, ]       #to remove low counts
          res_drought <- results(dds, contrast = c("condition", "drought", "control"))
          res_salinity <- results(dds, contrast = c("condition", "salinity", "control"))
 
+Normalization
+Variance Stabilizing Transformation (VST)
+
+   Extract normalized counts and perform VST
+   vsd <- vst(dds, blind = FALSE)
+   vst_mat <- assay(vsd)
+   head(vst_mat)
+   write.csv(vst_mat, "vst_normalized_counts.csv")
+
          
          
