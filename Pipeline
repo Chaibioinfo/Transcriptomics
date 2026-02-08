@@ -46,5 +46,74 @@ Quantifiy Gene Expression
           drought_rep1.sorted.bam drought_rep2.sorted.bam drought_rep3.sorted.bam \
           salinity_rep1.sorted.bam salinity_rep2.sorted.bam salinity_rep3.sorted.bam
 
+R
+Read Count Matrix 
+Code: counts <- read.table(
+      "gene_counts_matrix.txt",
+      header = TRUE,
+      row.names = 1,
+      sep = "\t",
+      check.names = FALSE
+      )
 
+Check sample names
+Code: colnames(counts)
 
+Create Coldata/Metadata
+Code: colData <- data.frame(
+  condition = c(
+    "control","control","control",
+    "heat","heat","heat",
+    "drought","drought","drought",
+    "salinity","salinity","salinity"
+  )
+)
+
+row.names(colData) <- colnames(counts)
+
+Check if the coloumn name of count_matrix match the row names of coldata
+Code: all(rownames(colData) == colnames(counts))
+
+Save Coldata
+Code: write.table(colData, "colData.txt", sep="\t", quote=FALSE)
+
+Load Libraries
+install.packages("BiocManager"); BiocManager::install("DESeq2"))
+library(DESeq2)
+
+Load feature_count.txt file 
+counts <- read.delim(
+  "feature_counts.txt",
+  comment.char = "#",
+  row.names = 1
+)
+
+Laod coldata
+coldata <- read.csv("coldata.csv", row.names = 1)
+# remove annotation columns (Chr, Start, End, Strand, Length)
+
+DEG ANALYSIS
+Create DESeq2 Dataset 
+dds <- DESeqDataSetFromMatrix(
+  countData = countdata,
+  colData = coldata,
+  design = ~ condition
+)
+dds <- dds[rowSums(counts(dds)) > 10, ]       #to remove low counts
+
+         Control vs Heat
+         res_heat <- results(dds, contrast = c("condition", "heat", "control"))
+         res_heat_df <- as.data.frame(res_heat)
+         res_heat_df <- res_heat_df[order(res_heat_df$padj), ]
+         deg_heat <- subset(
+         res_heat_df,
+         padj < 0.05 & abs(log2FoldChange) >= 1
+         )
+         write.csv(deg_heat, file = "DEG_heat_vs_control.csv")
+
+         Reapeat the same for "Control vs Drought and Control vs Salinity"
+         res_drought <- results(dds, contrast = c("condition", "drought", "control"))
+         res_salinity <- results(dds, contrast = c("condition", "salinity", "control"))
+
+         
+         
