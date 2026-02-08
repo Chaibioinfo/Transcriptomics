@@ -78,51 +78,68 @@ Save Coldata
 Code: write.table(colData, "colData.txt", sep="\t", quote=FALSE)
 
 Load Libraries
-install.packages("BiocManager"); BiocManager::install("DESeq2"))
-library(DESeq2)
+Code: install.packages("BiocManager"); BiocManager::install("DESeq2"))
+      library(DESeq2)
 
 Load feature_count.txt file 
-counts <- read.delim(
-  "feature_counts.txt",
-  comment.char = "#",
-  row.names = 1
-)
+Code: counts <- read.delim(
+      "feature_counts.txt",
+      comment.char = "#",
+      row.names = 1
+      )
 
 Laod coldata
-coldata <- read.csv("coldata.csv", row.names = 1)
+Code: coldata <- read.csv("coldata.csv", row.names = 1)
 # remove annotation columns (Chr, Start, End, Strand, Length)
 
 DEG ANALYSIS
 Create DESeq2 Dataset 
-dds <- DESeqDataSetFromMatrix(
-  countData = countdata,
-  colData = coldata,
-  design = ~ condition
-)
-dds <- dds[rowSums(counts(dds)) > 10, ]       #to remove low counts
+Code: dds <- DESeqDataSetFromMatrix(
+      countData = countdata,
+      colData = coldata,
+      design = ~ condition
+      )
+      dds <- dds[rowSums(counts(dds)) > 10, ]       #to remove low counts
 
-         Control vs Heat
-         res_heat <- results(dds, contrast = c("condition", "heat", "control"))
-         res_heat_df <- as.data.frame(res_heat)
-         res_heat_df <- res_heat_df[order(res_heat_df$padj), ]
-         deg_heat <- subset(
-         res_heat_df,
-         padj < 0.05 & abs(log2FoldChange) >= 1
-         )
-         write.csv(deg_heat, file = "DEG_heat_vs_control.csv") - to save the file in csv
+Control vs Heat
+Code: res_heat <- results(dds, contrast = c("condition", "heat", "control"))
+      res_heat_df <- as.data.frame(res_heat)
+      res_heat_df <- res_heat_df[order(res_heat_df$padj), ]
+      deg_heat <- subset(
+      res_heat_df,
+      padj < 0.05 & abs(log2FoldChange) >= 1
+      )
+     write.csv(deg_heat, file = "DEG_heat_vs_control.csv") - to save the file in csv
 
-         Reapeat the same for "Control vs Drought and Control vs Salinity" and save the files
-         res_drought <- results(dds, contrast = c("condition", "drought", "control"))
-         res_salinity <- results(dds, contrast = c("condition", "salinity", "control"))
+Reapeat the same for "Control vs Drought and Control vs Salinity" and save the files
+Code: res_drought <- results(dds, contrast = c("condition", "drought", "control"))
+      res_salinity <- results(dds, contrast = c("condition", "salinity", "control"))
 
 Normalization
 Variance Stabilizing Transformation (VST)
 
    Extract normalized counts and perform VST
-   vsd <- vst(dds, blind = FALSE)
-   vst_mat <- assay(vsd)
-   head(vst_mat)
-   write.csv(vst_mat, "vst_normalized_counts.csv")
+   Code: vsd <- vst(dds, blind = FALSE)
+         vst_mat <- assay(vsd)
+         head(vst_mat)
+         write.csv(vst_mat, "vst_normalized_counts.csv")
 
-         
-         
+Visualization
+
+PCA plot: to sample clustering
+Code: pcaData <- plotPCA(vsd, intgroup = "condition", returnData = TRUE)
+      percentVar <- round(100 * attr(pcaData, "percentVar"))
+      
+library(ggplot2)
+
+ggplot(pcaData, aes(x = PC1, y = PC2, color = condition)) +
+  geom_point(size = 4) +
+  xlab(paste0("PC1: ", percentVar[1], "% variance")) +
+  ylab(paste0("PC2: ", percentVar[2], "% variance")) +
+  theme_bw() +
+  theme(
+    text = element_text(size = 14),
+    legend.title = element_blank()
+  )
+
+
