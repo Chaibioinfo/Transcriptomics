@@ -109,9 +109,9 @@ dds <- dds[rowSums(counts(dds)) > 10, ]       #to remove low counts
          res_heat_df,
          padj < 0.05 & abs(log2FoldChange) >= 1
          )
-         write.csv(deg_heat, file = "DEG_heat_vs_control.csv")
+         write.csv(deg_heat, file = "DEG_heat_vs_control.csv") - to save the file in csv
 
-         Reapeat the same for "Control vs Drought and Control vs Salinity"
+         Reapeat the same for "Control vs Drought and Control vs Salinity" and save the files
          res_drought <- results(dds, contrast = c("condition", "drought", "control"))
          res_salinity <- results(dds, contrast = c("condition", "salinity", "control"))
 
