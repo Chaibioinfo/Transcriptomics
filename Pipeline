@@ -142,4 +142,143 @@ ggplot(pcaData, aes(x = PC1, y = PC2, color = condition)) +
     legend.title = element_blank()
   )
 
+Volcano plot
+Volcano_drought
+code: TO have files: res_drought
+                     res_heat
+                     res_salinity
+
+#Convert DESeq2 to data frame
+res_df <- as.data.frame(res_drought)
+res_df$gene <- rownames(res_df)
+
+#Remove NA values
+res_df <- res_df[!is.na(res_df$padj), ]
+
+#Define thresholds
+log2FC_cutoff <- 1
+padj_cutoff <- 0.05
+
+#Classify genes (Up / Down / Not significant)
+res_df$diffexpressed <- "Not Significant"
+
+res_df$diffexpressed[
+  res_df$log2FoldChange >= log2FC_cutoff & res_df$padj < padj_cutoff
+] <- "Up"
+
+res_df$diffexpressed[
+  res_df$log2FoldChange <= -log2FC_cutoff & res_df$padj < padj_cutoff
+] <- "Down"
+
+#drought_vs_control
+library(ggplot2)
+
+ggplot(res_df, aes(x = log2FoldChange, y = -log10(padj), color = diffexpressed)) +
+  geom_point(alpha = 0.6, size = 1.5) +
+  scale_color_manual(values = c(
+    "Up" = "#E64B35",
+    "Down" = "#4DBBD5",
+    "Not Significant" = "grey"
+  )) +
+  geom_vline(xintercept = c(-log2FC_cutoff, log2FC_cutoff), linetype = "dashed") +
+  geom_hline(yintercept = -log10(padj_cutoff), linetype = "dashed") +
+  theme_bw() +
+  labs(
+    title = "Volcano plot: Drought vs Control",
+    x = "log2 Fold Change",
+    y = "-log10 adjusted p-value",
+    color = "Expression"
+  )
+
+#save the plot
+ggsave("volcano_drought_vs_control.png", width = 7, height = 6, dpi = 300)
+
+Volcano_heat & volcano_salinity
+
+prepare_volcano_df <- function(res, lfc = 1, padj_cut = 0.05) {
+  df <- as.data.frame(res)
+  df$gene <- rownames(df)
+  df <- df[!is.na(df$padj), ]
+
+  df$status <- "Not Significant"
+  df$status[df$log2FoldChange >= lfc & df$padj < padj_cut] <- "Up"
+  df$status[df$log2FoldChange <= -lfc & df$padj < padj_cut] <- "Down"
+
+  return(df)
+}
+
+#prepare data for heat and salinity
+heat_df <- prepare_volcano_df(res_heat)
+salinity_df <- prepare_volcano_df(res_salinity)
+
+#heat_vs_control
+library(ggplot2)
+
+volcano_heat <- ggplot(heat_df, aes(log2FoldChange, -log10(padj), color = status)) +
+  geom_point(alpha = 0.6, size = 1.5) +
+  scale_color_manual(values = c(
+    "Up" = "#D73027",
+    "Down" = "#4575B4",
+    "Not Significant" = "grey70"
+  )) +
+  geom_vline(xintercept = c(-1, 1), linetype = "dashed") +
+  geom_hline(yintercept = -log10(0.05), linetype = "dashed") +
+  theme_bw() +
+  labs(
+    title = "Heat vs Control",
+    x = "log2 Fold Change",
+    y = "-log10 adjusted p-value",
+    color = "Expression"
+  )
+
+#volcano_heat
+library(ggplot2)
+
+volcano_heat <- ggplot(heat_df, aes(log2FoldChange, -log10(padj), color = status)) +
+  geom_point(alpha = 0.6, size = 1.5) +
+  scale_color_manual(values = c(
+    "Up" = "#D73027",
+    "Down" = "#4575B4",
+    "Not Significant" = "grey70"
+  )) +
+  geom_vline(xintercept = c(-1, 1), linetype = "dashed") +
+  geom_hline(yintercept = -log10(0.05), linetype = "dashed") +
+  theme_bw() +
+  labs(
+    title = "Heat vs Control",
+    x = "log2 Fold Change",
+    y = "-log10 adjusted p-value",
+    color = "Expression"
+  )
+
+volcano_heat
+
+#salinity_vs_control
+volcano_salinity <- ggplot(salinity_df, aes(log2FoldChange, -log10(padj), color = status)) +
+  geom_point(alpha = 0.6, size = 1.5) +
+  scale_color_manual(values = c(
+    "Up" = "#762A83",
+    "Down" = "#1B7837",
+    "Not Significant" = "grey70"
+  )) +
+  geom_vline(xintercept = c(-1, 1), linetype = "dashed") +
+  geom_hline(yintercept = -log10(0.05), linetype = "dashed") +
+  theme_bw() +
+  labs(
+    title = "Salinity vs Control",
+    x = "log2 Fold Change",
+    y = "-log10 adjusted p-value",
+    color = "Expression"
+  )
+
+volcano_salinity
+
+#save plots
+ggsave("volcano_heat_vs_control.png", volcano_heat, width = 7, height = 6, dpi = 300)
+ggsave("volcano_salinity_vs_control.png", volcano_salinity, width = 7, height = 6, dpi = 300)
+
+
+
+
+
 
