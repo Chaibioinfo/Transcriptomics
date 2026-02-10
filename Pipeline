@@ -277,6 +277,73 @@ volcano_salinity
 ggsave("volcano_heat_vs_control.png", volcano_heat, width = 7, height = 6, dpi = 300)
 ggsave("volcano_salinity_vs_control.png", volcano_salinity, width = 7, height = 6, dpi = 300)
 
+Heatmap 
+To generate heatmap of significantly DE in ALL three stresses
+
+get_sig_genes <- function(res, padj_cut = 0.05, lfc_cut = 1) {
+  df <- as.data.frame(res)
+  df <- df[!is.na(df$padj), ]
+  rownames(df)[df$padj < padj_cut & abs(df$log2FoldChange) > lfc_cut]
+}
+genes_drought  <- get_sig_genes(res_drought)
+genes_heat     <- get_sig_genes(res_heat)
+genes_salinity <- get_sig_genes(res_salinity)
+
+#to check counts
+length(genes_drought)
+length(genes_heat)
+length(genes_salinity)
+
+#to find shared DEG's
+shared_genes <- Reduce(intersect, list(
+  genes_drought,
+  genes_heat,
+  genes_salinity
+))
+
+#check no of shared genes
+length(shared_genes) - 96
+
+#annotation of samples and add colours
+annotation_col <- data.frame(
+  condition = colData(dds)$condition
+)
+
+rownames(annotation_col) <- colnames(heatmap_mat)
+ann_colors <- list(
+  condition = c(
+    control = "#4DAF4A",
+    heat = "#E41A1C",
+    drought = "#FF7F00",
+    salinity = "#377EB8"
+  )
+)
+
+#To plot Heatmap
+library(pheatmap)
+
+pheatmap(
+  heatmap_mat,
+  annotation_col = annotation_col,
+  annotation_colors = ann_colors,
+  cluster_rows = TRUE,
+  cluster_cols = TRUE,
+  show_rownames = FALSE,
+  fontsize_col = 8,
+  color = colorRampPalette(c("navy", "white", "firebrick3"))(100),
+  main = "Shared Differentially Expressed Genes Across Stresses"
+)
+
+#save file in pdf
+pdf("shared_DEG_heatmap.pdf", width = 10, height = 12)
+pheatmap(
+  heatmap_mat,
+  annotation_col = annotation_col,
+  annotation_colors = ann_colors,
+  show_rownames = FALSE,
+  color = colorRampPalette(c("navy", "white", "firebrick3"))(100)
+)
+dev.off()
 
 
 
