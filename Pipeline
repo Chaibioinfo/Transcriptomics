@@ -345,6 +345,35 @@ pheatmap(
 )
 dev.off()
 
+MA plot
+For each stress sample
+
+Drought vs Control
+Code: plotMA(
+  res_drought,
+  ylim = c(-5, 5),
+  main = "MA plot: Drought vs Control"
+)
+
+Heat vs Control
+plotMA(
+  res_heat,
+  ylim = c(-5, 5),
+  main = "MA plot: Heat vs Control"
+)
+
+Salinity vs Control
+plotMA(
+  res_salinity,
+  ylim = c(-5, 5),
+  main = "MA plot: Salinity vs Control"
+)
+
+For combining all the plots
+combined_MA <- ma_plot_drought | ma_plot_heat | ma_plot_salinity
+combined_MA
+
+
 
 
 
