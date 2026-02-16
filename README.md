@@ -31,26 +31,36 @@ fasterq-dump --split-files SRRXXXXXXX
 2. Quality Control
 Falco: Galaxy
 
-3. Trimming Adaptors
-Trimmomatic: Galaxy
+3. Trimming Adaptors: Trimmomatic
+```bash
+Download trimmomatic: github
+java -jar /mnt/d/gaurgram/Trimmomatic-0.39/trimmomatic-0.39.jar PE -threads 6 \
+control_R1_rep1.fastq  control_R2_rep1.fastq \
+control_R1_rep1_paired.fastq control_R1_rep1_unpaired.fastq \
+control_R2_rep1_paired.fastq control_R2_rep1_unpaired.fastq \
+ILLUMINACLIP:/mnt/d/gaurgram/Trimmomatic-0.39/adapters/TruSeq3-PE.fa:2:30:10 \
+LEADING:3 TRAILING:3 SLIDINGWINDOW:4:15 MINLEN:36
+
+Input: forward and reverse R1/R2 files
+Output: paired and unpaired R1/R2 files
+```
 
 4. Index Reference Genome
 ```bash
-hisat2-build ref_genome.fa index_prefix
+hisat2-build ref_genome.fa index_prefix           [No gtf file is avaliable for Cyamopsis tetragonoloba] 
 ```
 
 5. Alignment and sorting
 ```bash 
 hisat2 -p 4 --dta -x index_prefix \
--1 sample_R1.fastq -2 sample_R2.fastq |
-samtools sort -o sample.sorted.bam
-```
+-1 control_R1_rep2.fastq -2 control_R2_rep2.fastq \
+| samtools sort -o control_rep2.sorted.bam
 
-```python
+Input: R1/R2 fastq files
 Output: sorted.bam files
 ```
 
-## Quantification
+6. Quantify gene expression
 ```bash
 featureCounts -T 4 \
 -p -B -C \
@@ -61,18 +71,14 @@ featureCounts -T 4 \
 *.sorted.bam
 ```
 
----
-
-## Load Counts in R
+7. Load Counts matrix in R
 ```r
 counts <- read.delim("feature_counts.txt",
                      comment.char="#",
                      row.names=1)
 ```
 
----
-
-## Metadata
+8. Metadata
 ```r
 colData <- data.frame(
  condition=c(
@@ -84,9 +90,7 @@ colData <- data.frame(
 rownames(colData) <- colnames(counts)
 ```
 
----
-
-## DESeq2 Analysis
+9. DESeq2 Analysis
 ```r
 library(DESeq2)
 
@@ -99,26 +103,21 @@ dds <- dds[rowSums(counts(dds))>10,]
 dds <- DESeq(dds)
 ```
 
----
-
-## Differential Expression
+10. Differential Expression
 ```r
 res_heat <- results(dds, contrast=c("condition","heat","control"))
 res_drought <- results(dds, contrast=c("condition","drought","control"))
 res_salinity <- results(dds, contrast=c("condition","salinity","control"))
 ```
 
----
-
-## Normalization
+11. Normalization
 ```r
 vsd <- vst(dds, blind=FALSE)
 vst_mat <- assay(vsd)
 ```
-
----
-
-## PCA Plot
+12. Visualization
+    
+PCA Plot
 ```r
 pcaData <- plotPCA(vsd,intgroup="condition",returnData=TRUE)
 
@@ -126,10 +125,7 @@ ggplot(pcaData,aes(PC1,PC2,color=condition))+
 geom_point(size=4)+
 theme_bw()
 ```
-
----
-
-## Volcano Plot
+Volcano Plot
 ```r
 res_df <- as.data.frame(res_drought)
 res_df$gene <- rownames(res_df)
@@ -141,20 +137,14 @@ res_df$diffexpressed[res_df$log2FoldChange<=-1 & res_df$padj<0.05] <- "Down"
 ggplot(res_df,aes(log2FoldChange,-log10(padj),color=diffexpressed))+
 geom_point()
 ```
-
----
-
-## Heatmap
+Heatmap
 ```r
 shared_genes <- Reduce(intersect,
  list(genes_drought,genes_heat,genes_salinity))
 
 pheatmap(heatmap_mat)
 ```
-
----
-
-## MA Plots
+MA Plots
 ```r
 plotMA(res_drought)
 plotMA(res_heat)
