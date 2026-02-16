@@ -89,6 +89,7 @@ colData <- data.frame(
 ))
 rownames(colData) <- colnames(counts)
 ```
+<img width="321" height="246" alt="image" src="https://github.com/user-attachments/assets/9ba864c5-fb03-49e0-b74f-35e4958e08ae" />
 
 9. DESeq2 Analysis
 ```r
@@ -125,6 +126,8 @@ ggplot(pcaData,aes(PC1,PC2,color=condition))+
 geom_point(size=4)+
 theme_bw()
 ```
+<img width="613" height="351" alt="pca_ggplot2" src="https://github.com/user-attachments/assets/13e7a249-d886-4380-996f-e09229546a03" />
+
 Volcano Plot
 ```r
 res_df <- as.data.frame(res_drought)
@@ -137,6 +140,8 @@ res_df$diffexpressed[res_df$log2FoldChange<=-1 & res_df$padj<0.05] <- "Down"
 ggplot(res_df,aes(log2FoldChange,-log10(padj),color=diffexpressed))+
 geom_point()
 ```
+<img width="4800" height="1800" alt="combined_volcano_stress_conditions" src="https://github.com/user-attachments/assets/46d3549a-505d-453b-bf77-1ac0c1ebbfb4" />
+
 Heatmap
 ```r
 shared_genes <- Reduce(intersect,
@@ -144,12 +149,15 @@ shared_genes <- Reduce(intersect,
 
 pheatmap(heatmap_mat)
 ```
+![shared_DEG_heatmap](https://github.com/user-attachments/assets/f86fe932-7b3e-449b-bf27-607b011a9551)
+
 MA Plots
 ```r
 plotMA(res_drought)
 plotMA(res_heat)
 plotMA(res_salinity)
 ```
+![MA_plots_all_stresses](https://github.com/user-attachments/assets/76b2c544-7541-4f59-8694-5ac9ce3a6787)
 
 
 
